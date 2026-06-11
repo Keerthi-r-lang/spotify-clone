@@ -6,14 +6,15 @@ Django==6.0.6
 django-cors-headers==4.9.0
 djangorestframework==3.17.1
 djangorestframework_simplejwt==5.5.1
-djongo==1.2.31
 dnspython==2.8.0
 gunicorn==26.0.0
+package_name==0.1
 packaging==26.2
 pillow==12.2.0
 PyJWT==2.13.0
 pymongo==4.17.0
 python-dotenv==1.2.2
+pytz==2026.2
 six==1.17.0
 sqlparse==0.5.5
 tzdata==2026.2
