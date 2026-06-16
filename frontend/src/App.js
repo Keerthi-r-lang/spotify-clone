@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import {
   BrowserRouter,
   Routes,
@@ -7,36 +8,51 @@ import {
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import Player from './components/Player';
 
 import ProtectedRoute from './components/ProtectedRoute';
 import { AuthProvider } from './context/AuthContext';
 
 function App() {
+  const [currentSong, setCurrentSong] = useState(null);
+
+  const handlePlay = (song) => {
+    console.log('Playing:', song.title);
+    setCurrentSong(song);
+  };
+
   return (
     <BrowserRouter>
       <AuthProvider>
-        <Routes>
+        <>
+          <Routes>
 
-          <Route
-            path="/"
-            element={
-              <ProtectedRoute>
-                <Home />
-              </ProtectedRoute>
-            }
-          />
+            <Route
+              path="/"
+              element={
+                <ProtectedRoute>
+                  <Home
+                    currentSong={currentSong}
+                    onPlay={handlePlay}
+                  />
+                </ProtectedRoute>
+              }
+            />
 
-          <Route
-            path="/login"
-            element={<Login />}
-          />
+            <Route
+              path="/login"
+              element={<Login />}
+            />
 
-          <Route
-            path="/register"
-            element={<Register />}
-          />
+            <Route
+              path="/register"
+              element={<Register />}
+            />
 
-        </Routes>
+          </Routes>
+
+          <Player song={currentSong} />
+        </>
       </AuthProvider>
     </BrowserRouter>
   );

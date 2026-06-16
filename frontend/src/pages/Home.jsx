@@ -1,107 +1,67 @@
 import { useEffect, useState } from 'react';
 import api from '../services/api';
-import { useAuth } from '../context/AuthContext';
+import SongCard from '../components/SongCard';
 
-export default function Home() {
+export default function Home({ currentSong, onPlay }) {
   const [songs, setSongs] = useState([]);
-  const [current, setCurrent] = useState(null);
   const [search, setSearch] = useState('');
-  const { logout } = useAuth();
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    console.log("TOKEN:", localStorage.getItem("access_token"));
+    const timer = setTimeout(async () => {
+      try {
+        setLoading(true);
 
-    api.get(`/songs/?q=${search}`)
-      .then((res) => {
-        console.log(res.data);
+        const res = await api.get(`/songs/?q=${search}`);
+
         setSongs(res.data);
-      })
-      .catch((err) => {
+      } catch (err) {
         console.log(err.response);
-      });
+      } finally {
+        setLoading(false);
+      }
+    }, 300);
+
+    return () => clearTimeout(timer);
   }, [search]);
 
   return (
-    <div style={{ padding: 24 }}>
-      <h2>Songs</h2>
+    <div className='flex-1 overflow-y-auto p-6'>
+      <h1 className='text-2xl font-medium text-gray-900 dark:text-white mb-6'>
+        All songs
+      </h1>
 
-      <input
-        placeholder="Search songs or artists..."
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-      />
+      <div className='relative mb-6'>
+        <span className='absolute left-3 top-1/2 -translate-y-1/2 text-gray-400'>
+          ⌕
+        </span>
 
-      <ul
-        style={{
-          listStyle: 'none',
-          padding: 0,
-          marginTop: 16,
-        }}
-      >
-        {songs.map((song) => (
-          <li
-            key={song.id}
-            onClick={() => setCurrent(song)}
-            style={{
-              padding: '8px 0',
-              cursor: 'pointer',
-              borderBottom: '1px solid #eee',
-            }}
-          >
-            {song.cover_url && (
-  <img
-    src={song.cover_url}
-    alt={song.title}
-    width={40}
-    style={{
-      marginRight: 10,
-      verticalAlign: 'middle',
-    }}
-  />
-)}
-            
+        <input
+          className='w-full pl-9 pr-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand'
+          placeholder='Search songs or artists...'
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+      </div>
 
-            <strong>{song.title}</strong> — {song.artist}
-          </li>
-        ))}
-      </ul>
-
-      {songs.length === 0 && (
-        <p style={{ marginTop: 20 }}>
-          No songs found. Upload songs through Django Admin.
+      {loading ? (
+        <p className='text-sm text-gray-400'>
+          Loading...
         </p>
-      )}
-
-      {current && (
-        <div
-          style={{
-            position: 'fixed',
-            bottom: 0,
-            left: 0,
-            right: 0,
-            background: '#111',
-            color: '#fff',
-            padding: 16,
-          }}
-        >
-          <p>
-            {current.title} — {current.artist}
-          </p>
-
-          <audio
-  controls
-  autoPlay
-  src={current.audio_url}
-  style={{ width: '100%' }}
+      ) : songs.length === 0 ? (
+        <p className='text-sm text-gray-400'>
+          No songs found.
+        </p>
+      ) : (
+        <div className='space-y-1'>
+          {songs.map((s) => (
+            <SongCard
+  key={s.id}
+  song={s}
+  onPlay={onPlay}
+  isPlaying={currentSong?.id === s.id}
 />
-<button
-  onClick={() => {
-    logout();
-    window.location.href = '/login';
-  }}
->
-  Logout
-</button>
+          ))}
         </div>
       )}
     </div>
