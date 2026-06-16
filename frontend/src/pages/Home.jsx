@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react';
 import api from '../services/api';
+import { useAuth } from '../context/AuthContext';
 
 export default function Home() {
   const [songs, setSongs] = useState([]);
   const [current, setCurrent] = useState(null);
   const [search, setSearch] = useState('');
+  const { logout } = useAuth();
 
   useEffect(() => {
     console.log("TOKEN:", localStorage.getItem("access_token"));
@@ -92,6 +94,14 @@ export default function Home() {
   src={current.audio_url}
   style={{ width: '100%' }}
 />
+<button
+  onClick={() => {
+    logout();
+    window.location.href = '/login';
+  }}
+>
+  Logout
+</button>
         </div>
       )}
     </div>
